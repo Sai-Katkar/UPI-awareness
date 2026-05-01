@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Invisible Spend — UPI & Your Money</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080810;--bg2:#0f0f1a;--bg3:#141424;
+  --text:#f0ece4;--muted:#7a7a8a;
+  --accent:#6c63ff;--accent2:#a78bfa;
+  --gold:#e8c96d;--red:#e05a3a;
+  --border:rgba(108,99,255,0.15);
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-weight:300;overflow-x:hidden;cursor:none}
+
+/* cursor */
+.cur{position:fixed;width:10px;height:10px;background:var(--accent2);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .2s,height .2s}
+.cur-ring{position:fixed;width:32px;height:32px;border:1px solid rgba(167,139,250,.35);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:all .1s ease-out}
+
+/* ── HERO ── */
+.hero{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:4rem;padding:0 6rem;position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background:
+  radial-gradient(ellipse 60% 70% at 70% 50%,rgba(108,99,255,.12) 0%,transparent 65%),
+  radial-gradient(ellipse 40% 40% at 20% 80%,rgba(167,139,250,.06) 0%,transparent 60%),
+  radial-gradient(ellipse 30% 30% at 80% 10%,rgba(232,201,109,.05) 0%,transparent 60%)}
+
+/* floating particles */
+.particles{position:absolute;inset:0;pointer-events:none}
+.p{position:absolute;border-radius:50%;animation:float linear infinite}
+@keyframes float{0%{transform:translateY(100vh) rotate(0deg);opacity:0}10%{opacity:1}90%{opacity:.3}100%{transform:translateY(-10vh) rotate(720deg);opacity:0}}
+
+.hero-text{position:relative;z-index:2;opacity:0;animation:fadeUp 1s .3s forwards}
+.hero-label{font-size:.65rem;letter-spacing:.28em;text-transform:uppercase;color:var(--accent2);margin-bottom:1.5rem;display:flex;align-items:center;gap:.8rem}
+.hero-label::before{content:'';width:30px;height:1px;background:var(--accent2)}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(2.8rem,5vw,5.5rem);font-weight:900;line-height:.95;letter-spacing:-.02em;margin-bottom:1.5rem}
+.hero h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:1rem;color:var(--muted);line-height:1.8;max-width:420px;margin-bottom:2.5rem}
+.hero-cta{display:inline-flex;align-items:center;gap:.6rem;background:var(--accent);color:#fff;padding:.75rem 1.8rem;font-size:.85rem;font-weight:500;letter-spacing:.05em;text-decoration:none;transition:transform .2s,box-shadow .2s}
+.hero-cta:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(108,99,255,.4)}
+.scroll-arrow{display:flex;align-items:center;gap:.5rem;color:var(--muted);font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;margin-top:2rem}
+.arrow-line{width:40px;height:1px;background:linear-gradient(to right,var(--accent2),transparent)}
+
+/* ── 3D PHONE ── */
+.phone-scene{position:relative;z-index:2;display:flex;justify-content:center;align-items:center;height:600px;opacity:0;animation:fadeUp 1s .6s forwards}
+.phone-wrap{position:relative;animation:phoneFloat 6s ease-in-out infinite}
+@keyframes phoneFloat{0%,100%{transform:translateY(0) rotateX(8deg) rotateY(-12deg)}50%{transform:translateY(-20px) rotateX(4deg) rotateY(-8deg)}}
+
+.phone{
+  width:240px;height:490px;
+  background:linear-gradient(160deg,#1e1e2e 0%,#0d0d18 100%);
+  border-radius:36px;
+  border:1.5px solid rgba(255,255,255,.12);
+  box-shadow:
+    0 0 0 1px rgba(108,99,255,.3),
+    0 30px 80px rgba(0,0,0,.7),
+    0 0 60px rgba(108,99,255,.15),
+    inset 0 1px 0 rgba(255,255,255,.08);
+  position:relative;overflow:hidden;
+  transform-style:preserve-3d;
+}
+
+/* notch */
+.phone::before{content:'';position:absolute;top:12px;left:50%;transform:translateX(-50%);width:70px;height:6px;background:#0a0a14;border-radius:6px;z-index:10}
+
+/* screen glow */
+.phone::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(108,99,255,.2) 0%,transparent 70%);z-index:1}
+
+.screen{position:absolute;inset:8px;border-radius:28px;background:#0a0a14;overflow:hidden;z-index:2}
+
+/* UPI app mockup */
+.upi-app{height:100%;display:flex;flex-direction:column;padding:2rem 1.2rem 1.2rem}
+.app-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;margin-top:.8rem}
+.app-logo{font-size:.55rem;font-weight:700;color:#fff;letter-spacing:.05em;display:flex;align-items:center;gap:.3rem}
+.app-logo-icon{width:18px;height:18px;background:linear-gradient(135deg,#6c63ff,#a78bfa);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.45rem;color:#fff;font-weight:900}
+.app-notif{width:20px;height:20px;border-radius:50%;border:1px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center}
+.app-notif::after{content:'';width:6px;height:6px;background:#6c63ff;border-radius:50%}
+
+/* balance card */
+.balance-card{background:linear-gradient(135deg,rgba(108,99,255,.3),rgba(167,139,250,.15));border:1px solid rgba(108,99,255,.3);border-radius:14px;padding:1rem;margin-bottom:1rem;position:relative;overflow:hidden}
+.balance-card::before{content:'';position:absolute;top:-20px;right:-20px;width:80px;height:80px;background:rgba(108,99,255,.15);border-radius:50%}
+.bal-label{font-size:.42rem;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.3rem}
+.bal-amount{font-family:'Playfair Display',serif;font-size:1.4rem;color:#fff;font-weight:700;line-height:1}
+.bal-change{font-size:.4rem;color:#6c63ff;margin-top:.3rem}
+
+/* quick actions */
+.quick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-bottom:1rem}
+.q-btn{display:flex;flex-direction:column;align-items:center;gap:.3rem;padding:.5rem .2rem;background:rgba(255,255,255,.04);border-radius:10px;border:1px solid rgba(255,255,255,.06)}
+.q-icon{width:20px;height:20px;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.q-label{font-size:.35rem;color:rgba(255,255,255,.4);text-align:center}
+
+/* transactions */
+.tx-label{font-size:.42rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem}
+.tx-item{display:flex;justify-content:space-between;align-items:center;padding:.5rem 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.tx-left{display:flex;align-items:center;gap:.5rem}
+.tx-avatar{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.35rem;font-weight:700;color:#fff;flex-shrink:0}
+.tx-name{font-size:.42rem;color:rgba(255,255,255,.7)}
+.tx-time{font-size:.35rem;color:rgba(255,255,255,.25)}
+.tx-amount{font-size:.45rem;font-weight:500}
+.tx-amount.debit{color:#e05a3a}
+.tx-amount.credit{color:#6c63ff}
+
+/* animated scan line */
+.scan{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 0%,rgba(108,99,255,.04) 50%,transparent 100%);animation:scan 4s linear infinite;pointer-events:none;z-index:10}
+@keyframes scan{0%{transform:translateY(-100%)}100%{transform:translateY(100%)}}}
+
+/* side buttons on phone */
+.btn-right{position:absolute;right:-2px;top:100px;width:3px;height:50px;background:rgba(255,255,255,.1);border-radius:2px}
+.btn-left1{position:absolute;left:-2px;top:80px;width:3px;height:30px;background:rgba(255,255,255,.1);border-radius:2px}
+.btn-left2{position:absolute;left:-2px;top:120px;width:3px;height:30px;background:rgba(255,255,255,.1);border-radius:2px}
+
+/* orbiting elements */
+.orbit{position:absolute;border-radius:50%;animation:orbit linear infinite}
+@keyframes orbit{from{transform:rotate(0deg) translateX(var(--r)) rotate(0deg)}to{transform:rotate(360deg) translateX(var(--r)) rotate(-360deg)}}
+
+.orb-wrap{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:0;height:0;pointer-events:none}
+
+.orb-chip{position:absolute;background:rgba(15,15,26,.9);border:1px solid rgba(108,99,255,.4);border-radius:10px;padding:.4rem .7rem;font-size:.6rem;color:var(--accent2);white-space:nowrap;box-shadow:0 4px 20px rgba(108,99,255,.2);animation:orbitChip linear infinite}
+
+@keyframes orbitChip{from{transform:rotate(var(--start)) translateX(var(--r)) rotate(calc(-1 * var(--start)))}to{transform:rotate(calc(var(--start) + 360deg)) translateX(var(--r)) rotate(calc(-1 * var(--start) - 360deg))}}
+
+/* ── TICKER ── */
+.ticker{background:var(--accent);padding:.7rem 0;overflow:hidden;white-space:nowrap;font-size:.7rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#fff}
+.ticker-inner{display:inline-block;animation:tick 35s linear infinite}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ── SECTIONS ── */
+section{padding:7rem 6rem;max-width:1200px;margin:0 auto}
+@media(max-width:900px){section{padding:5rem 2rem}.hero{grid-template-columns:1fr;padding:4rem 2rem;text-align:center}.phone-scene{height:450px}}
+
+.section-label{font-size:.62rem;letter-spacing:.28em;text-transform:uppercase;color:var(--accent2);margin-bottom:1.2rem;display:flex;align-items:center;gap:.8rem}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border);max-width:60px}
+h2{font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,3.5rem);font-weight:700;line-height:1.05;margin-bottom:1.5rem}
+p.body{color:rgba(240,236,228,.7);line-height:1.85;font-size:1rem;max-width:620px;margin-bottom:1.2rem}
+
+/* reveal */
+.reveal{opacity:0;transform:translateY(35px);transition:opacity .8s ease,transform .8s ease}
+.reveal.visible{opacity:1;transform:none}
+.d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.35s}.d4{transition-delay:.5s}
+
+/* stat grid */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);margin-top:3rem}
+.stat-card{background:var(--bg);padding:2rem 1.5rem;transition:background .3s}
+.stat-card:hover{background:var(--bg2)}
+.stat-num{font-family:'Playfair Display',serif;font-size:3rem;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;display:block;margin-bottom:.4rem}
+.stat-lbl{font-size:.8rem;color:var(--muted);line-height:1.5}
+
+/* pull quote */
+.pull-quote{border-left:2px solid var(--accent);padding:1.8rem 2.2rem;margin:3.5rem 0;background:var(--bg2)}
+.pull-quote p{font-family:'Playfair Display',serif;font-size:clamp(1.1rem,2vw,1.5rem);font-style:italic;color:var(--text);margin:0 0 .8rem;line-height:1.5}
+.pull-quote cite{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+
+/* progress */
+.progress-list{display:flex;flex-direction:column;gap:1.4rem;margin-top:2.5rem}
+.p-meta{display:flex;justify-content:space-between;margin-bottom:.4rem;font-size:.82rem}
+.p-meta span:last-child{color:var(--accent2);font-weight:500}
+.p-track{height:2px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden}
+.p-fill{height:100%;background:linear-gradient(to right,var(--accent),var(--accent2));width:0;transition:width 1.3s cubic-bezier(.4,0,.2,1)}
+
+/* band */
+.band{background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:5rem 0}
+.band-inner{max-width:1200px;margin:0 auto;padding:0 6rem;display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center}
+@media(max-width:900px){.band-inner{grid-template-columns:1fr;gap:3rem;padding:0 2rem}}
+
+/* parallax text */
+.ptext{font-family:'Playfair Display',serif;font-size:clamp(4rem,11vw,10rem);font-weight:900;color:transparent;-webkit-text-stroke:1px rgba(108,99,255,.12);white-space:nowrap;user-select:none;overflow:hidden;padding:.8rem 0;will-change:transform}
+
+/* timeline */
+.timeline{position:relative;padding-left:1.8rem;margin-top:2.5rem}
+.timeline::before{content:'';position:absolute;left:0;top:0;bottom:0;width:1px;background:var(--border)}
+.tl-item{position:relative;padding:0 0 2.5rem 2.2rem}
+.tl-item::before{content:'';position:absolute;left:-4px;top:6px;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px rgba(108,99,255,.15)}
+.tl-year{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--accent2);margin-bottom:.3rem}
+.tl-item h3{font-family:'Playfair Display',serif;font-size:1.2rem;margin-bottom:.4rem}
+.tl-item p{font-size:.85rem;color:var(--muted);margin:0;line-height:1.6}
+
+/* tips */
+.tip-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);margin-top:3rem}
+.tip-card{background:var(--bg);padding:1.8rem 1.4rem;transition:background .3s}
+.tip-card:hover{background:var(--bg2)}
+.tip-num{font-family:'Playfair Display',serif;font-size:2.2rem;color:rgba(108,99,255,.18);font-weight:900;line-height:1;margin-bottom:.4rem}
+.tip-card h3{font-size:.85rem;font-weight:500;margin-bottom:.4rem}
+.tip-card p{font-size:.78rem;color:var(--muted);line-height:1.6}
+
+/* CTA */
+.cta-section{min-height:70vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:7rem 2rem;position:relative;overflow:hidden}
+.cta-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 50%,rgba(108,99,255,.09) 0%,transparent 70%)}
+.cta-section h2{font-size:clamp(2.2rem,6vw,5rem);max-width:700px;margin-bottom:1.5rem}
+
+footer{border-top:1px solid var(--border);padding:2.5rem 6rem;max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+footer p{font-size:.72rem;color:var(--muted);margin:0}
+.footer-logo{font-family:'Playfair Display',serif;font-size:1rem;color:var(--accent2);font-weight:700}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(25px)}to{opacity:1;transform:none}}
+.highlight{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+</style>
+</head>
+<body>
+
+<div class="cur" id="cur"></div>
+<div class="cur-ring" id="curRing"></div>
+
+<!-- PARTICLES -->
+<div class="particles" id="particles"></div>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-bg"></div>
+
+  <div class="hero-text">
+    <p class="hero-label">Financial Awareness Project</p>
+    <h1>The <em>Invisible</em><br>Spend</h1>
+    <p class="hero-sub">India's UPI processes 12 billion transactions a month. But when money disappears in a tap, does your awareness of it disappear too?</p>
+    <div class="scroll-arrow"><div class="arrow-line"></div> Scroll to explore</div>
+  </div>
+
+  <!-- 3D PHONE -->
+  <div class="phone-scene">
+    <div class="phone-wrap">
+      <!-- orbiting chips -->
+      <div class="orb-wrap">
+        <div class="orb-chip" style="--start:0deg;--r:180px;animation-duration:12s">₹ 2,340 spent today</div>
+        <div class="orb-chip" style="--start:120deg;--r:170px;animation-duration:16s">52% impulsive buys</div>
+        <div class="orb-chip" style="--start:240deg;--r:185px;animation-duration:14s">Payment in 0.3s</div>
+      </div>
+
+      <div class="phone">
+        <div class="btn-right"></div>
+        <div class="btn-left1"></div>
+        <div class="btn-left2"></div>
+        <div class="scan"></div>
+
+        <div class="screen">
+          <div class="upi-app">
+            <!-- header -->
+            <div class="app-header">
+              <div class="app-logo">
+                <div class="app-logo-icon">U</div>
+                UPI Pay
+              </div>
+              <div class="app-notif"></div>
+            </div>
+
+            <!-- balance -->
+            <div class="balance-card">
+              <div class="bal-label">Available Balance</div>
+              <div class="bal-amount" id="balAmt">₹12,450</div>
+              <div class="bal-change">↓ ₹3,280 spent this week</div>
+            </div>
+
+            <!-- quick actions -->
+            <div class="quick-grid">
+              <div class="q-btn">
+                <div class="q-icon" style="background:rgba(108,99,255,.2)">↑</div>
+                <div class="q-label">Send</div>
+              </div>
+              <div class="q-btn">
+                <div class="q-icon" style="background:rgba(167,139,250,.2)">↓</div>
+                <div class="q-label">Request</div>
+              </div>
+              <div class="q-btn">
+                <div class="q-icon" style="background:rgba(232,201,109,.15)">⊞</div>
+                <div class="q-label">QR</div>
+              </div>
+              <div class="q-btn">
+                <div class="q-icon" style="background:rgba(224,90,58,.15)">☰</div>
+                <div class="q-label">History</div>
+              </div>
+            </div>
+
+            <!-- transactions -->
+            <div class="tx-label">Recent</div>
+            <div class="tx-item">
+              <div class="tx-left">
+                <div class="tx-avatar" style="background:#6c63ff">S</div>
+                <div>
+                  <div class="tx-name">Swiggy Order</div>
+                  <div class="tx-time">2 min ago</div>
+                </div>
+              </div>
+              <div class="tx-amount debit" id="tx1">−₹340</div>
+            </div>
+            <div class="tx-item">
+              <div class="tx-left">
+                <div class="tx-avatar" style="background:#a78bfa">Z</div>
+                <div>
+                  <div class="tx-name">Zomato</div>
+                  <div class="tx-time">1 hr ago</div>
+                </div>
+              </div>
+              <div class="tx-amount debit">−₹180</div>
+            </div>
+            <div class="tx-item">
+              <div class="tx-left">
+                <div class="tx-avatar" style="background:#e8c96d">A</div>
+                <div>
+                  <div class="tx-name">Amazon</div>
+                  <div class="tx-time">3 hrs ago</div>
+                </div>
+              </div>
+              <div class="tx-amount debit">−₹899</div>
+            </div>
+            <div class="tx-item">
+              <div class="tx-left">
+                <div class="tx-avatar" style="background:#4ade80">R</div>
+                <div>
+                  <div class="tx-name">Salary</div>
+                  <div class="tx-time">Yesterday</div>
+                </div>
+              </div>
+              <div class="tx-amount credit">+₹45,000</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TICKER -->
+<div class="ticker" aria-hidden="true">
+  <span class="ticker-inner">
+    &nbsp;108 BILLION transactions projected 2024 &nbsp;◆&nbsp; 52% of users report more impulsive purchases &nbsp;◆&nbsp; 74% report increased overall spending &nbsp;◆&nbsp; 59.8% regularly exceed monthly budget &nbsp;◆&nbsp; 49% say financial awareness has declined &nbsp;◆&nbsp; 12 BILLION monthly transactions &nbsp;◆&nbsp; UPI processes ₹20 lakh crore monthly &nbsp;◆&nbsp;
+    &nbsp;108 BILLION transactions projected 2024 &nbsp;◆&nbsp; 52% of users report more impulsive purchases &nbsp;◆&nbsp; 74% report increased overall spending &nbsp;◆&nbsp; 59.8% regularly exceed monthly budget &nbsp;◆&nbsp; 49% say financial awareness has declined &nbsp;◆&nbsp; 12 BILLION monthly transactions &nbsp;◆&nbsp; UPI processes ₹20 lakh crore monthly &nbsp;◆&nbsp;
+  </span>
+</div>
+
+<!-- STATS -->
+<section>
+  <p class="section-label reveal">The Numbers</p>
+  <h2 class="reveal d1">Convenience has a <span class="highlight">hidden cost.</span></h2>
+  <p class="body reveal d2">UPI transformed how India pays. But researchers have documented a consistent pattern — the moment people switch from cash to UPI, spending frequency rises, impulsive purchases increase, and financial self-awareness drops.</p>
+  <div class="stat-grid">
+    <div class="stat-card reveal d1"><span class="stat-num">52%</span><span class="stat-lbl">of UPI users report more impulsive purchases than they made with cash</span></div>
+    <div class="stat-card reveal d2"><span class="stat-num">74%</span><span class="stat-lbl">reported increased overall spending after adopting UPI as primary payment</span></div>
+    <div class="stat-card reveal d3"><span class="stat-num">49%</span><span class="stat-lbl">say their financial awareness and attention to expenses has declined</span></div>
+    <div class="stat-card reveal d4"><span class="stat-num">59.8%</span><span class="stat-lbl">acknowledge regularly exceeding their monthly budget due to UPI usage</span></div>
+  </div>
+</section>
+
+<!-- PARALLAX -->
+<div class="ptext" id="pt1">THE PAIN OF PAYING</div>
+
+<!-- PSYCHOLOGY BAND -->
+<div class="band">
+  <div class="band-inner">
+    <div class="reveal">
+      <p class="section-label">The Psychology</p>
+      <h2>Why cash hits different</h2>
+      <p class="body">Behavioral economists call it the <em>"Pain of Paying."</em> When you hand over physical cash, your brain registers a loss — and that discomfort makes you careful.</p>
+      <p class="body">With UPI, a transaction completes in under a second. No physical sensation. No visible disappearance. The money stops feeling real — and people spend more without a second thought.</p>
+    </div>
+    <div class="reveal d2">
+      <div class="progress-list">
+        <div><div class="p-meta"><span>Impulsive purchases</span><span>52%</span></div><div class="p-track"><div class="p-fill" data-w="52"></div></div></div>
+        <div><div class="p-meta"><span>Increased overall spending</span><span>74%</span></div><div class="p-track"><div class="p-fill" data-w="74"></div></div></div>
+        <div><div class="p-meta"><span>Budget exceeded monthly</span><span>59.8%</span></div><div class="p-track"><div class="p-fill" data-w="59.8"></div></div></div>
+        <div><div class="p-meta"><span>Declined financial awareness</span><span>49%</span></div><div class="p-track"><div class="p-fill" data-w="49"></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QUOTE -->
+<section>
+  <div class="pull-quote reveal">
+    <p>"Without UPI, I wouldn't have spent as much ordering food online. The money doesn't feel the same as cash."</p>
+    <cite>— UPI user, interview participant · Dev, Gupta & Kumar, CHI 2024</cite>
+  </div>
+
+  <p class="section-label reveal">The Rise</p>
+  <h2 class="reveal d1">From 2.65 million<br>to <span class="highlight">108 billion.</span></h2>
+
+  <div class="timeline reveal d2">
+    <div class="tl-item"><p class="tl-year">2016</p><h3>UPI Launches</h3><p>NPCI and RBI roll out India's real-time payment infrastructure. Just 2.65 million transactions in year one.</p></div>
+    <div class="tl-item"><p class="tl-year">2016</p><h3>Demonetization</h3><p>The government abolishes ₹500 and ₹1,000 notes overnight. Cash vanishes — UPI fills the vacuum.</p></div>
+    <div class="tl-item"><p class="tl-year">2019–2022</p><h3>PhonePe & GPay Explode</h3><p>Private apps build on the open UPI architecture, creating a mass user base of hundreds of millions.</p></div>
+    <div class="tl-item"><p class="tl-year">2024</p><h3>12 Billion Monthly Transactions</h3><p>A 1,100% increase in five years. UPI is now the default payment method across all of India.</p></div>
+  </div>
+</section>
+
+<!-- PARALLAX 2 -->
+<div class="ptext" id="pt2" style="-webkit-text-stroke:1px rgba(224,90,58,.1)">SWIPE. TAP. GONE.</div>
+
+<!-- CTA -->
+<div class="cta-section">
+  <p class="section-label reveal" style="justify-content:center">What You Can Do</p>
+  <h2 class="reveal d1">Your data is a mirror.<br><span class="highlight">Look at it.</span></h2>
+  <p class="body reveal d2" style="text-align:center;margin:0 auto">UPI isn't the problem — invisibility is. These four habits turn your transaction history into a tool.</p>
+  <div class="tip-grid reveal d3" style="max-width:860px;width:100%">
+    <div class="tip-card"><div class="tip-num">01</div><h3>Weekly review</h3><p>Spend 5 minutes every Sunday reviewing your UPI history. Awareness begins with looking.</p></div>
+    <div class="tip-card"><div class="tip-num">02</div><h3>Set a monthly cap</h3><p>Most UPI apps allow spend limits. Use them — treat it like cash in a wallet: finite and real.</p></div>
+    <div class="tip-card"><div class="tip-num">03</div><h3>The 10-second pause</h3><p>Before any unplanned purchase, wait 10 seconds. Recreate the "pain of paying" deliberately.</p></div>
+    <div class="tip-card"><div class="tip-num">04</div><h3>Categorize spends</h3><p>Apps like Fi or Jupiter auto-categorize UPI transactions so patterns become visible over time.</p></div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo">The Invisible Spend</div>
+  <p>Sources: Dev et al. (CHI 2024) · Samit (SSRN 2025) · Cornelli et al. (SUERF 2024) · Mathew et al. (IJSR 2024)</p>
+  <p>A financial awareness project</p>
+</footer>
+
+<script>
+// Cursor
+const cur=document.getElementById('cur'),ring=document.getElementById('curRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
+(function animR(){rx+=(mx-rx)*.1;ry+=(my-ry)*.1;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animR)})();
+document.querySelectorAll('a,button,.stat-card,.tip-card,.orb-chip').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cur.style.width='18px';cur.style.height='18px'});
+  el.addEventListener('mouseleave',()=>{cur.style.width='10px';cur.style.height='10px'});
+});
+
+// Particles
+const pc=document.getElementById('particles');
+for(let i=0;i<25;i++){
+  const p=document.createElement('div');
+  const s=Math.random()*4+2;
+  const colors=['rgba(108,99,255,.4)','rgba(167,139,250,.3)','rgba(232,201,109,.25)'];
+  p.className='p';
+  Object.assign(p.style,{
+    width:s+'px',height:s+'px',
+    left:Math.random()*100+'%',
+    background:colors[Math.floor(Math.random()*colors.length)],
+    animationDuration:(Math.random()*15+10)+'s',
+    animationDelay:(Math.random()*15)+'s'
+  });
+  pc.appendChild(p);
+}
+
+// Scroll reveal
+const obs=new IntersectionObserver(entries=>entries.forEach(e=>{
+  if(e.isIntersecting){
+    e.target.classList.add('visible');
+    e.target.querySelectorAll('.p-fill').forEach(b=>b.style.width=b.dataset.w+'%');
+  }
+}),{threshold:.15});
+document.querySelectorAll('.reveal').forEach(r=>obs.observe(r));
+
+// Progress bars standalone
+const pobs=new IntersectionObserver(entries=>entries.forEach(e=>{
+  if(e.isIntersecting)e.target.querySelectorAll('.p-fill').forEach(b=>b.style.width=b.dataset.w+'%');
+}),{threshold:.3});
+document.querySelectorAll('.progress-list').forEach(el=>pobs.observe(el));
+
+// Parallax
+const pt1=document.getElementById('pt1'),pt2=document.getElementById('pt2');
+window.addEventListener('scroll',()=>{
+  const sy=window.scrollY;
+  if(pt1)pt1.style.transform=`translateX(${sy*.12}px)`;
+  if(pt2)pt2.style.transform=`translateX(${-sy*.09}px)`;
+},{passive:true});
+
+// Phone 3D tilt on mouse
+const phoneWrap=document.querySelector('.phone-wrap');
+document.addEventListener('mousemove',e=>{
+  const cx=window.innerWidth/2,cy=window.innerHeight/2;
+  const dx=(e.clientX-cx)/cx,dy=(e.clientY-cy)/cy;
+  phoneWrap.style.transform=`rotateX(${8-dy*6}deg) rotateY(${-12+dx*10}deg) translateY(${Math.sin(Date.now()/1000)*8}px)`;
+},{passive:true});
+
+// Animate balance number
+const bal=document.getElementById('balAmt');
+let balVal=12450;
+setInterval(()=>{
+  balVal-=Math.floor(Math.random()*50+10);
+  if(balVal<8000)balVal=12450;
+  bal.textContent='₹'+balVal.toLocaleString('en-IN');
+},3000);
+</script>
+</body>
+</html>
